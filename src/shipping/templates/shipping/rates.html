@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Get Rates</title>
+</head>
+<body>
+<style scoped>
+    .div {
+        display: block;
+        margin: 0 auto;
+        max-width: 450px;
+        max-height: 800px;
+        border-radius: 10px;
+        border: 1px solid black;
+        padding: 10px;
+        overflow-y: auto;
+    }
+
+    .div h2 {
+        text-align: center;
+    }
+
+    .parcel-form {
+        margin-top: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        position: relative;
+    }
+
+    .parcel-form h3 {
+        margin-bottom: 10px;
+    }
+
+    .remove-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px;
+        border-radius: 3px;
+        cursor: pointer;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+</style>
+
+<style scoped>
+    .container {
+        display: flex;
+        flex-direction: column;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .row label {
+        width: 120px;
+    }
+
+    .row select, .row input {
+        flex-grow: 1;
+        margin-left: 10px;
+    }
+
+    .row input {
+        width: 100px;
+    }
+</style>
+
+<div class="div">
+    <h2>Parcel Details</h2>
+    <hr>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="first_name">Name:</label>
+        <input type="text" id="first_name" name="first_name"><br><br>
+
+        <div class="container">
+    <div class="row">
+        <label for="shipfrom">Ship From:</label>
+        <select id="shipfrom" name="shipfrom">
+            <option value="us">United States</option>
+            <option value="gb">United Kingdom</option>
+        </select>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label for="shipto">Ship To:</label>
+        <select id="shipto" name="shipto">
+            <option value="us">United States</option>
+            <option value="gb">United Kingdom</option>
+        </select>
+    </div>
+
+    <div class="row">
+        <label for="from_post_code">Post Code:</label>
+        <input type="text" id="from_post_code" name="from_post_code">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label for="to_post_code">Post Code:</label>
+        <input type="text" id="to_post_code" name="to_post_code">
+    </div>
+</div>
+
+
+        <!-- Parcel Details Section -->
+        <div id="parcels-container">
+            <!-- Parcel form will be dynamically added here -->
+        </div>
+        <br>
+        <button type="button" id="add-parcel-btn">Add Parcel</button><br><br>
+        <button type="submit">Create</button>
+        <p></p>
+    </form>
+</div>
+
+{% if error %}
+    <p>{{ error }}</p>
+{% endif %}
+
+<script>
+    let parcelCount = 0;  // Keeps track of how many parcels are added
+
+    document.getElementById('add-parcel-btn').addEventListener('click', function() {
+        parcelCount++;
+        addParcelForm(parcelCount);
+    });
+
+    function addParcelForm(count) {
+        // Create a new parcel section
+        let parcelSection = document.createElement('div');
+        parcelSection.classList.add('parcel-form');
+        parcelSection.setAttribute('data-parcel-id', count);
+        parcelSection.innerHTML = `
+            <h3>Parcel ${count}</h3>
+            <label for="parcel_weight_${count}">Weight:</label>
+            <input type="number" id="parcel_weight_${count}" name="parcels[${count - 1}][weight]" min="0" step="0.1" required><br>
+            <label for="parcel_x_${count}">X (cm):</label>
+            <input type="number" id="parcel_x_${count}" name="parcels[${count - 1}][x]" min="0" step="1" required><br>
+            <label for="parcel_y_${count}">Y (cm):</label>
+            <input type="number" id="parcel_y_${count}" name="parcels[${count - 1}][y]" min="0" step="1" required><br>
+            <label for="parcel_z_${count}">Z (cm):</label>
+            <input type="number" id="parcel_z_${count}" name="parcels[${count - 1}][z]" min="0" step="1" required><br>
+            <button type="button" class="remove-btn">Remove Parcel</button>
+        `;
+
+        // Append the new parcel section to the container
+        document.getElementById('parcels-container').appendChild(parcelSection);
+
+        // Add event listener to the remove button
+        parcelSection.querySelector('.remove-btn').addEventListener('click', function() {
+            parcelSection.remove();
+            updateParcelNumbers();
+        });
+    }
+
+    function updateParcelNumbers() {
+        const parcelForms = document.querySelectorAll('.parcel-form');
+        parcelCount = 0;  // Reset the counter
+
+        // Loop through all parcel forms and update their numbering
+        parcelForms.forEach(function(parcel, index) {
+            parcelCount = index + 1;
+            parcel.querySelector('h3').innerText = `Parcel ${parcelCount}`;
+            parcel.setAttribute('data-parcel-id', parcelCount);
+            parcel.querySelector(`#parcel_weight_${index + 1}`).name = `parcels[${parcelCount - 1}][weight]`;
+            parcel.querySelector(`#parcel_x_${index + 1}`).name = `parcels[${parcelCount - 1}][x]`;
+            parcel.querySelector(`#parcel_y_${index + 1}`).name = `parcels[${parcelCount - 1}][y]`;
+            parcel.querySelector(`#parcel_z_${index + 1}`).name = `parcels[${parcelCount - 1}][z]`;
+        });
+    }
+</script>
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Response</title>
+</head>
+<body>
+
+<div style="display: flex; justify-content: center;">
+    <div style="display: inline-block; max-width: 600px; max-height: 600px; border-radius: 10px; border: 1px solid black; padding: 10px; margin: 10px; overflow: hidden; word-wrap: break-word;">
+        <h3>Response</h3>
+        <hr>
+        <pre id="responseContainer" style="max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word;">
+        </pre>
+    </div>
+</div>
+
+
+
+<script>
+    // Assuming 'response' is available in the script as a JavaScript object
+    var response = {{ response|safe }};
+    document.getElementById('responseContainer').textContent = JSON.stringify(response, null, 2);
+</script>
+
+
+</body>
+</html>
